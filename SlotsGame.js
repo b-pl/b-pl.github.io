@@ -2,9 +2,12 @@
 class SlotsGame {
   constructor() {
     let balance = localStorage.getItem('balance')
+    this.reels = this.#generateReels()
 
     if (!balance) 
       this.setBalance(100)
+
+      
   }
 
   setBalance(amount) {
@@ -28,13 +31,15 @@ class SlotsGame {
     let sets = []
     let max = 9
     const min = 0
+    let copyReels = JSON.parse(JSON.stringify(reels))
+    
   
-    for (const reel in reels) {
+    for (const reel in copyReels) {
       let set = []
       for (let i = 0; i < 3; i++) {
         let randomIndex = Math.floor(Math.random() * (max - min + 1) ) + min;
-        set.push(reels[reel][randomIndex])
-        reels[reel].splice(randomIndex, 1)
+        set.push(copyReels[reel][randomIndex])
+        copyReels[reel].splice(randomIndex, 1)
         max--
       }
       sets.push(set)
@@ -77,8 +82,8 @@ class SlotsGame {
   }
 
   spin() {
-    const reels = this.#generateReels()
-    const sets = this.#generateSets(reels)
+    // const reels = this.#generateReels()
+    const sets = this.#generateSets(this.reels)
     const results = this.#setSymbolsPositions(sets).join().split(',')
 
     this.#fillSlots(results)
