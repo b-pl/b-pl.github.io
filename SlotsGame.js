@@ -1,17 +1,32 @@
 // REELS HAS TO BE GENERATED ONLY ONCE
 class SlotsGame {
   constructor() {
-    let balance = localStorage.getItem('balance')
+    this.balance = localStorage.getItem('balance')
     this.reels = this.#generateReels()
+    this.settings = {
+      multipliers: {
+        0: '1',
+        1: '3',
+        2: '5',
+        4: '10'
+      },
+      currentStake: {
+        stake: 1
+      }
+    }
 
-    if (!balance) 
-      this.setBalance(100)
-
-      
+    if (!this.balance) 
+      this.#setBalance(100)
   }
 
-  setBalance(amount) {
-    localStorage.setItem('balance', amount)
+  #setBalance(amount) {
+    console.log(`currentBalance = ${localStorage.getItem('balance')}`)
+    console.log(`amountToSet = ${amount}`)
+    return localStorage.setItem('balance', amount)
+  }
+
+  getBalance() {
+    return parseFloat(localStorage.getItem('balance'))
   }
 
   #generateReels() {
@@ -27,6 +42,7 @@ class SlotsGame {
     return reels
   }
 
+  // Set is vertival line (reel) in which numbers are laid
   #generateSets(reels) {
     let sets = []
     let max = 9
@@ -77,21 +93,109 @@ class SlotsGame {
     }
   }
 
+  spin() {
+    // const reels = this.#generateReels()
+    let stake = parseFloat(this.settings.currentStake.stake)
+    let currentBalance = this.getBalance()
+    let afterBalance = currentBalance - stake
+    console.log(`SPIN - stake = ${stake} current = ${currentBalance} after = ${afterBalance}`)
+    this.#setBalance(afterBalance)
+    this.updateAndShowBalance()
+
+    const sets = this.#generateSets(this.reels)
+    const results = this.#setSymbolsPositions(sets).join().split(',')
+    this.#fillSlots(results)
+
+    this.#isWon(results)
+  }
+
+  // Winning lines
+  // 0 3 6
+  // 1 4 7
+  // 2 5 8
+  #isWon(results) {
+    let lines = {
+      isWon: false,
+      winningNumbers: [],
+      first: {
+        isWon: false,
+        winningNumber: undefined
+      },
+      second: {
+        isWon: false,
+        winningNumber: undefined
+      },
+      third: {
+        isWon: false,
+        winningNumber: undefined
+      }
+    }
+    console.log(results)
+
+    if (results[0] === results[3] && results[0] === results[6]) {
+    console.log(results[0] + ' ' + results[3] + ' ' + results[6])
+      lines.first.isWon = true
+      lines.first.winningNumber = results[0]
+      lines.isWon = true
+      lines.winningNumbers.push(results[0])
+    }
+
+    if (results[1] === results[4] && results[1] === results[7]) {
+      lines.second.isWon = true
+      lines.second.winningNumber = results[1]
+      lines.isWon = true
+      lines.winningNumbers.push(results[1])
+    }
+
+    if (results[2] === results[5] && results[2] === results[8]) {
+      lines.third.isWon = true
+      lines.third.winningNumber = results[2]
+      lines.isWon = true
+      lines.winningNumbers.push(results[2])
+    }
+
+    console.log(lines)
+
+    if (!lines.isWon) {
+      console.log('not won')
+      return false
+    } else {
+      let stake = parseFloat(this.settings.currentStake.stake)
+      let winnings = 0
+      for (const number of lines.winningNumbers) {
+        winnings += this.settings.multipliers[number] * stake
+      }
+
+      let balance = parseFloat(this.getBalance())
+      balance += parseFloat(winnings)
+      this.#setBalance(balance)
+      alert(`winnings = ${winnings}; typeof = ${typeof(winnings)}; balance = ${balance}; typeof = ${typeof(balance)}`)
+      this.updateAndShowBalance()
+    }
+
+    return true
+  }
+
+  updateAndShowBalance() {
+    document.querySelector('#balance_amount').textContent = this.getBalance()
+  }
+
   createListeners() {
     document.querySelector('.slots__button').addEventListener('click', () => this.spin())
   }
 
-  spin() {
-    // const reels = this.#generateReels()
-    const sets = this.#generateSets(this.reels)
-    const results = this.#setSymbolsPositions(sets).join().split(',')
-
-    this.#fillSlots(results)
-  }
-
   init() {
     this.createListeners()
-    this.spin()
+    this.updateAndShowBalance()
+    // this.spin()
+    window.setStake = (stake) => {
+      this._setStake(stake)
+    }
+  }
+
+  // DEBUG
+  _setStake(stake) {
+    this.settings.currentStake.stake = stake
   }
 
   test() {
