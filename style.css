@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.slots__wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.slots__row {
+  display: flex;
+  flex-direction: column;
+}
+
+.slot {
+  border: 1px solid black;
+  width: 150px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 64px;
+}
