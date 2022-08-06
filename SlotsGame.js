@@ -1,17 +1,46 @@
-// REELS HAS TO BE GENERATED ONLY ONCE
 class SlotsGame {
   constructor() {
-    let balance = localStorage.getItem('balance')
     this.reels = this.#generateReels()
-
-    if (!balance) 
-      this.setBalance(100)
-
-      
+    this.settings = {
+      multipliers: {
+        0: '1',
+        1: '3',
+        2: '5',
+        4: '10'
+      },
+      stakes: [
+        0.25,
+        0.50,
+        1.00,
+        2.00,
+        5.00,
+        10.00
+      ],
+      game: {
+        stake: undefined,
+        balance: localStorage.getItem('balance') ? localStorage.getItem('balance') : 100
+      }
+    }
   }
 
-  setBalance(amount) {
-    localStorage.setItem('balance', amount)
+  #setSettings() {
+    return this.#setStake(localStorage.getItem('stake') && this.settings.stakes.find(el => el == localStorage.getItem('stake')) ? localStorage.getItem('stake') : 0.25)
+  }
+
+  #setBalance(amount) {
+    return this.settings.game.balance = amount
+  }
+
+  getBalance() {
+    return parseFloat(this.settings.game.balance).toFixed(2)
+  }
+
+  #setStake(stake) {
+    return this.settings.game.stake = stake
+  }
+
+  getStake() {
+    return parseFloat(this.settings.game.stake).toFixed(2)
   }
 
   #generateReels() {
@@ -27,6 +56,7 @@ class SlotsGame {
     return reels
   }
 
+  // Set is vertival line (reel) in which numbers are laid
   #generateSets(reels) {
     let sets = []
     let max = 9
@@ -77,21 +107,160 @@ class SlotsGame {
     }
   }
 
-  createListeners() {
-    document.querySelector('.slots__button').addEventListener('click', () => this.spin())
-  }
-
   spin() {
     // const reels = this.#generateReels()
+    let stake = this.getStake()
+    let currentBalance = this.getBalance()
+    let afterBalance = currentBalance - stake
+    if (afterBalance < 0)
+      return false
+    console.log(`SPIN - stake = ${stake} current = ${currentBalance} after = ${afterBalance}`)
+    this.#setBalance(afterBalance)
+    this.showBalance()
+
     const sets = this.#generateSets(this.reels)
     const results = this.#setSymbolsPositions(sets).join().split(',')
-
     this.#fillSlots(results)
+
+    this.#isWon(results)
+  }
+
+  // Winning lines
+  // 0 3 6
+  // 1 4 7
+  // 2 5 8
+  #isWon(results) {
+    let lines = {
+      isWon: false,
+      winningNumbers: [],
+      first: {
+        isWon: false,
+        winningNumber: undefined
+      },
+      second: {
+        isWon: false,
+        winningNumber: undefined
+      },
+      third: {
+        isWon: false,
+        winningNumber: undefined
+      }
+    }
+    console.log(results)
+
+    if (results[0] === results[3] && results[0] === results[6]) {
+    console.log(results[0] + ' ' + results[3] + ' ' + results[6])
+      lines.first.isWon = true
+      lines.first.winningNumber = results[0]
+      lines.isWon = true
+      lines.winningNumbers.push(results[0])
+    }
+
+    if (results[1] === results[4] && results[1] === results[7]) {
+      lines.second.isWon = true
+      lines.second.winningNumber = results[1]
+      lines.isWon = true
+      lines.winningNumbers.push(results[1])
+    }
+
+    if (results[2] === results[5] && results[2] === results[8]) {
+      lines.third.isWon = true
+      lines.third.winningNumber = results[2]
+      lines.isWon = true
+      lines.winningNumbers.push(results[2])
+    }
+
+    console.log(lines)
+
+    if (!lines.isWon) {
+      console.log('not won')
+      return false
+    } else {
+      let stake = this.getStake()
+      let winnings = 0
+      for (const number of lines.winningNumbers) {
+        winnings += this.settings.multipliers[number] * stake
+      }
+
+      let balance = parseFloat(this.getBalance())
+      balance += parseFloat(winnings)
+      this.#setBalance(balance)
+      // alert(`winnings = ${winnings}; typeof = ${typeof(winnings)}; balance = ${balance}; typeof = ${typeof(balance)}`)
+      this.showBalance()
+    }
+
+    return true
+  }
+
+  showBalance() {
+    document.querySelector('.balance__element--amount').textContent = this.getBalance()
+  }
+
+  showStake() {
+    document.querySelector('.slots__button--currentStake').textContent = this.getStake()
+  }
+
+  #saveDataToLocalStorage() {
+    localStorage.setItem('balance', this.getBalance())
+    localStorage.setItem('stake', this.getStake())
+  }
+
+  #handleStakeIncrease() {
+    let currentStake = this.getStake()
+    let currentIndex = this.settings.stakes.findIndex(el => el == currentStake)
+    if (this.settings.stakes[currentIndex + 1] === undefined)
+      return false
+    
+    return this.#setStake(this.settings.stakes[currentIndex + 1])
+  }
+
+  #handleStakeDecrease() {
+    let currentStake = this.getStake()
+    let currentIndex = this.settings.stakes.findIndex(el => el == currentStake)
+    if (this.settings.stakes[currentIndex - 1] === undefined)
+      return false
+    
+    return this.#setStake(this.settings.stakes[currentIndex - 1])
+  }
+
+  createListeners() {
+    document.querySelector('.slots__button--spin').addEventListener('click', () => this.spin())
+    document.querySelector('.slots__button--increaseStake').addEventListener('click', () => {
+      this.#handleStakeIncrease()
+      this.showStake()
+    })
+    document.querySelector('.slots__button--decraseStake').addEventListener('click', () => {
+      this.#handleStakeDecrease()
+      this.showStake()
+    })
+    window.addEventListener('beforeunload', () => this.#saveDataToLocalStorage())
   }
 
   init() {
+    this.#setSettings()
+    this.#saveDataToLocalStorage()
     this.createListeners()
-    this.spin()
+    this.showBalance()
+    this.showStake()
+
+    // DEBUG
+    window.setStake = (stake) => {
+      this._setStake(stake)
+    }
+    window.setBalance = (balance) => {
+      this._setBalance(balance)
+      let newB = this.getBalance()
+      document.querySelector('.balance__element--amount').textContent = newB
+    }
+  }
+
+  // DEBUG
+  _setStake(stake) {
+    this.settings.game.stake = stake
+  }
+
+  _setBalance(balance) {
+    this.#setBalance(balance)
   }
 
   test() {
