@@ -1,3 +1,7 @@
+:root {
+  font-size: 10px;
+}
+
 body {
   margin: 0;
 }
@@ -11,15 +15,43 @@ body {
   flex-direction: column;
 }
 
+.content {
+  width: 600px;
+  min-height: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 1px solid #ff0000;
+}
+
+.balance {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  justify-content: flex-end;
+  height: 75px;
+  font-size: 2rem;
+}
+
+.balance__element {
+  padding-top: 5px;
+  padding-right: 5px;
+}
+
+
+
 .slots__wrapper {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  max-width: 450px;
 }
 
 .slots__row {
   display: flex;
   flex-direction: column;
+  max-width: 150px;
 }
 
 .slot {
@@ -29,5 +61,27 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 64px;
+  font-size: 6.4rem;
+}
+
+.slots__button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3.2rem;
+}
+
+.slots__button--currentStake {
+  margin: 0 1rem;
+}
+
+.buttons__wrapper {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  height: 75px;
+}
+
+.slots__button--wrapper {
+  width: 150px;
 }
