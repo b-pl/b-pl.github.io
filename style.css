@@ -64,6 +64,10 @@ body {
   font-size: 6.4rem;
 }
 
+.slot img {
+  max-width: 75%;
+}
+
 .slots__button {
   display: flex;
   justify-content: center;
