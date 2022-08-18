@@ -128,8 +128,10 @@ class SlotsGame {
     let stake = this.getStake()
     let currentBalance = this.getBalance()
     let afterBalance = currentBalance - stake
-    if (afterBalance < 0)
-      return false
+    if (afterBalance < 0) {
+      return this.#createMessage({content: 'Not enough cash'})
+    }
+      
     console.log(`SPIN - stake = ${stake} current = ${currentBalance} after = ${afterBalance}`)
     this.#setBalance(afterBalance)
     this.showBalance()
@@ -237,6 +239,40 @@ class SlotsGame {
       return false
     
     return this.#setStake(this.settings.stakes[currentIndex - 1])
+  }
+
+  // options = {
+  //   bg_color,
+  //   text_color,
+  //   timeout,
+  //   content
+  // }
+  #createMessage(options) {
+    console.log(options)
+    const template = document.querySelector('#template_message')
+    const clone = template.content.cloneNode(true)
+    const content = clone.querySelector('.template_content')
+
+    clone.childNodes[1].id = 'info_message'
+    // console.log(clone.childNodes[1])
+    clone.childNodes[1].style.backgroundColor = options.bg_color != undefined ? options.bg_color : 'blue'
+    clone.childNodes[1].style.color = options.text_color != undefined ? options.text_color : 'white'
+    content.textContent = options.content
+
+    document.querySelector('.container').appendChild(clone)
+
+    const time = options.timeout != undefined ? options.timeout : '5000'
+    setTimeout(() => {
+      document.querySelector('#info_message').classList.add('--visible')
+    }, 50)
+
+    setTimeout(() => {
+      document.querySelector('#info_message').classList.remove('--visible')
+    }, time)
+
+    setTimeout(() => {
+      document.querySelector('#info_message').remove()
+    }, time + 400)
   }
 
   createListeners() {
