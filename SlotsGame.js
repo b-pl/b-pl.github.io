@@ -101,9 +101,25 @@ class SlotsGame {
     return finalResults
   }
 
+  // #fillSlots(results) {
+  //   for (let i = 0; i < 9; i++) {
+  //     document.querySelector(`#slot-${i}`).textContent = results[i]
+  //   }
+  // }
+
   #fillSlots(results) {
+    const images = {
+      0: '/gfx/apple.png',
+      1: '/gfx/cherry.png',
+      2: '/gfx/lemon.png',
+      4: '/gfx/seven.png'
+    }
+
     for (let i = 0; i < 9; i++) {
-      document.querySelector(`#slot-${i}`).textContent = results[i]
+      let img = document.createElement('img')
+      img.setAttribute('src', images[results[i]])
+      document.querySelector(`#slot-${i}`).textContent = ''
+      document.querySelector(`#slot-${i}`).appendChild(img)
     }
   }
 
