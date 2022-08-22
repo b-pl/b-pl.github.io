@@ -101,12 +101,6 @@ class SlotsGame {
     return finalResults
   }
 
-  // #fillSlots(results) {
-  //   for (let i = 0; i < 9; i++) {
-  //     document.querySelector(`#slot-${i}`).textContent = results[i]
-  //   }
-  // }
-
   #fillSlots(results) {
     const images = {
       0: '/gfx/apple.png',
@@ -123,13 +117,21 @@ class SlotsGame {
     }
   }
 
+  #fillOnInit() {
+    const sets = this.#generateSets(this.reels)
+    const results = this.#setSymbolsPositions(sets).join().split(',')
+    this.#fillSlots(results)
+  }
+
   spin() {
     // const reels = this.#generateReels()
     let stake = this.getStake()
     let currentBalance = this.getBalance()
     let afterBalance = currentBalance - stake
-    if (afterBalance < 0)
-      return false
+    if (afterBalance < 0) {
+      return this.#createMessage({content: 'Not enough cash'})
+    }
+      
     console.log(`SPIN - stake = ${stake} current = ${currentBalance} after = ${afterBalance}`)
     this.#setBalance(afterBalance)
     this.showBalance()
@@ -198,6 +200,8 @@ class SlotsGame {
         winnings += this.settings.multipliers[number] * stake
       }
 
+      this.#createPopup(winnings)
+
       let balance = parseFloat(this.getBalance())
       balance += parseFloat(winnings)
       this.#setBalance(balance)
@@ -239,6 +243,81 @@ class SlotsGame {
     return this.#setStake(this.settings.stakes[currentIndex - 1])
   }
 
+  #handleGetMoneyButton() {
+    let balance = parseInt(this.getBalance())
+    console.log(balance)
+
+    if (balance > 0) 
+      return this.#createMessage({content: "You've got money"})
+
+    this.#setBalance(100)
+    this.showBalance()
+    this.#createMessage({content: 'Here you go!'})
+  }
+
+  #createPopup(winnings) {
+    const template = document.querySelector('#template__message--popup')
+    const clone = template.content.cloneNode(true)
+    const content = clone.querySelector('.template__content')
+    const button = clone.querySelector('.template__button')
+
+    const contentMessage = `<div>You've won</div><div>${parseFloat(winnings).toFixed(2)}</div>`
+    const buttonContent = `OK`
+
+    clone.childNodes[2].id = 'won__popup'
+    content.innerHTML = contentMessage
+    button.textContent = buttonContent
+    button.addEventListener('click', () => {
+      document.querySelector('.template__background').remove()
+    })
+
+    document.querySelector('.container').appendChild(clone)
+
+    setTimeout(() => {
+      document.querySelector('.template__background').classList.add('--visible')
+    }, 50)
+  }
+
+  // options = {
+  //   bg_color,
+  //   text_color,
+  //   timeout,
+  //   content
+  // }
+  #createMessage(options) {
+    if (document.querySelector('#info_message')) {
+      document.querySelector('#info_message').remove()
+    }
+
+    console.log(options)
+    const template = document.querySelector('#template__message')
+    const clone = template.content.cloneNode(true)
+    const content = clone.querySelector('.template__content')
+
+    clone.childNodes[1].id = 'info_message'
+    clone.childNodes[1].style.backgroundColor = options.bg_color != undefined ? options.bg_color : 'blue'
+    clone.childNodes[1].style.color = options.text_color != undefined ? options.text_color : 'white'
+    content.textContent = options.content
+
+    document.querySelector('.container').appendChild(clone)
+
+    const time = options.timeout != undefined ? options.timeout : '5000'
+    setTimeout(() => {
+      if (document.querySelector('#info_message'))
+        document.querySelector('#info_message').classList.add('--visible')
+    }, 50)
+
+    setTimeout(() => {
+      if (document.querySelector('#info_message'))
+        document.querySelector('#info_message').classList.remove('--visible')
+    }, time)
+
+    setTimeout(() => {
+      if (document.querySelector('#info_message'))
+        document.querySelector('#info_message').remove()
+    }, parseInt(time) + parseInt(400))
+  }
+
   createListeners() {
     document.querySelector('.slots__button--spin').addEventListener('click', () => this.spin())
     document.querySelector('.slots__button--increaseStake').addEventListener('click', () => {
@@ -249,6 +328,7 @@ class SlotsGame {
       this.#handleStakeDecrease()
       this.showStake()
     })
+    document.querySelector('.slots__button--getMoney').addEventListener('click', () => this.#handleGetMoneyButton())
     window.addEventListener('beforeunload', () => this.#saveDataToLocalStorage())
   }
 
@@ -258,6 +338,7 @@ class SlotsGame {
     this.createListeners()
     this.showBalance()
     this.showStake()
+    this.#fillOnInit()
 
     // DEBUG
     window.setStake = (stake) => {
