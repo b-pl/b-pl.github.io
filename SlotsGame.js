@@ -63,7 +63,6 @@ class SlotsGame {
     const min = 0
     let copyReels = JSON.parse(JSON.stringify(reels))
     
-  
     for (const reel in copyReels) {
       let set = []
       for (let i = 0; i < 3; i++) {
@@ -124,7 +123,6 @@ class SlotsGame {
   }
 
   spin() {
-    // const reels = this.#generateReels()
     let stake = this.getStake()
     let currentBalance = this.getBalance()
     let afterBalance = currentBalance - stake
@@ -132,7 +130,7 @@ class SlotsGame {
       return this.#createMessage({content: 'Not enough cash'})
     }
       
-    console.log(`SPIN - stake = ${stake} current = ${currentBalance} after = ${afterBalance}`)
+    // console.log(`SPIN - stake = ${stake} current = ${currentBalance} after = ${afterBalance}`)
     this.#setBalance(afterBalance)
     this.showBalance()
 
@@ -205,7 +203,6 @@ class SlotsGame {
       let balance = parseFloat(this.getBalance())
       balance += parseFloat(winnings)
       this.#setBalance(balance)
-      // alert(`winnings = ${winnings}; typeof = ${typeof(winnings)}; balance = ${balance}; typeof = ${typeof(balance)}`)
       this.showBalance()
     }
 
@@ -358,91 +355,6 @@ class SlotsGame {
 
   _setBalance(balance) {
     this.#setBalance(balance)
-  }
-
-  test() {
-    let tab = []
-    let equal = 0
-    let bigprize = 0
-    let small = 0
-    let medium = 0
-    let high = 0
-    for (let i = 0; i < 1000; i++) {
-      const reels = _generateReels()
-      const sets = _generateSets(reels)
-      const results = _setSymbolsPositions(sets).join().split(',')
-      tab.push(results)
-      // ALL WINS
-      if (results[0] === results[3] && results[0] === results[6]) {
-        equal++
-      }
-      if (results[1] === results[4] && results[1] === results[7]) {
-        equal++
-      } 
-      if (results[2] === results[5] && results[2] === results[8]) {
-        equal++
-      }
-
-      // BIG PRIZE
-      if (results[0] === '4' && results[0] === results[3] && results[0] === results[6]) {
-        bigprize++
-      }
-      if (results[1] === '4' && results[1] === results[4] && results[1] === results[7]) {
-        bigprize++
-      }
-      if (results[2] === '4' && results[2] === results[5] && results[2] === results[8]) {
-        bigprize++
-      }
-
-      // SMALL PRIZE
-      if (results[0] === '1' && results[0] === results[3] && results[0] === results[6]) {
-        small++
-      }
-      if (results[1] === '1' && results[1] === results[4] && results[1] === results[7]) {
-        small++
-      }
-      if (results[2] === '1' && results[2] === results[5] && results[2] === results[8]) {
-        small++
-      }
-
-      // MEDIUM PRIZE
-      if (results[0] === '2' && results[0] === results[3] && results[0] === results[6]) {
-        medium++
-      }
-      if (results[1] === '2' && results[1] === results[4] && results[1] === results[7]) {
-        medium++
-      }
-      if (results[2] === '2' && results[2] === results[5] && results[2] === results[8]) {
-        medium++
-      }
-
-      // HIGH PRIZE
-      if (results[0] === '0' && results[0] === results[3] && results[0] === results[6]) {
-        high++
-      }
-      if (results[1] === '0' && results[1] === results[4] && results[1] === results[7]) {
-        high++
-      }
-      if (results[2] === '0' && results[2] === results[5] && results[2] === results[8]) {
-        high++
-      }
-    }
-    let equalPercentage = (equal / 1000) * 100
-    let bigprizePercentage = (bigprize / 1000) * 100
-    let smallPercentage = (small / 1000) * 100
-    let mediumPercentage = (medium / 1000) * 100
-    let highPercentage = (high / 1000) * 100
-    // console.log(tab)
-    console.log({equal})
-    console.log({equalPercentage})
-    console.log({bigprize})
-    console.log({bigprizePercentage})
-    console.log({small})
-    console.log({smallPercentage})
-    console.log({medium})
-    console.log({mediumPercentage})
-    console.log({high})
-    console.log({highPercentage})
   }
 }
 
