@@ -1,3 +1,4 @@
+// PR
 class SlotsGame {
   constructor() {
     this.reels = this.#generateReels()
@@ -336,6 +337,8 @@ class SlotsGame {
     this.showBalance()
     this.showStake()
     this.#fillOnInit()
+
+    document.querySelector('#slot-0').childNodes[0].setAttribute('id', 'test')
 
     // DEBUG
     window.setStake = (stake) => {
